@@ -12,8 +12,8 @@ Objective
 Build a K8s cluster using technologies available at work as a proof of concept
 and reusable template to build from.
 
-The idea is to keep the cluster as simple as possible while meeting production
-grade requirements and scale to run sizable, but not extreme, machine learning
+The idea is to ***keep the cluster as simple as possible while meeting production
+grade requirements*** and scale to run sizable, but not extreme, machine learning
 and big data compute applications.
 
 Production means:
@@ -85,8 +85,19 @@ References:
 Target Technologies
 ===================
 
-* `**Proxmox VE**`_ for VM hosting this doesn't matter much
-* `**Salt**`_ for IaaC to setup Kubernetes nodes programattically
-* `**CentOS**`_ for node operating systems to replicate using RHEL 8
-* `**kubeadm**`_ for bootstrapping K8s nodes 
+* **VM hypervisor** - `Proxmox VE`_ for VM hosting this doesn't matter much
+* **Configuration management** - Salt_ for IaaC to setup and maintain Kubernetes nodes programattically
+* **VM OS** - CentOS_ for node operating systems to replicate using RHEL 8
+* **K8s ingress controller** - HAProxy_ for high availability load balancing
+* **K8s cluster creation**- kubeadm_ for bootstrapping K8s nodes 
+
+.. _`Proxmox VE`: https://www.proxmox.com/en/ 
+.. _Salt: https://saltproject.io
+.. _CentOS: https://www.centos.org/download/
+.. _HAProxy: http://www.haproxy.org
+
+**Assets list**
+
+1. CentOS boot ISO
+2. HAProxy package
 
