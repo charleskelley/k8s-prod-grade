@@ -77,9 +77,29 @@ Node Architecture
   three hosts. Application workload runs in a VM on each host. 
 
 
-References:
+**Node Layout and Resources**
 
-* `How to make Kubernetes production grade anywhere<https://kubernetes.io/blog/2018/08/03/out-of-the-clouds-onto-the-ground-how-to-make-kubernetes-production-grade-anywhere/>`_
++--------------------+---------------+-----------------+-----+--------+--------+
+| VM Name            | Role          | IP Address      | CPU | RAM    | DISK   |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-haproxy-01 | Load Balancer | 192.168.100.150 | 2   | 4 GB   | 20 GB  |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-m-01       | Master        | 192.168.100.151 | 2   | 8 GB   | 20  GB |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-m-02       | Master        | 192.168.100.152 | 2   | 8 GB   | 20  GB |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-m-03       | Master        | 192.168.100.153 | 2   | 8 GB   | 20  GB |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-w-01       | Worker        | 192.168.100.154 | 2   | 8 GB   | 20  GB |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-w-02       | Worker        | 192.168.100.155 | 2   | 8 GB   | 20  GB |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-w-03       | Worker        | 192.168.100.156 | 2   | 8 GB   | 20  GB |
++--------------------+---------------+-----------------+-----+-----------------+
+| saw-k8s-w-04       | Worker        | 192.168.100.157 | 2   | 8 GB   | 20  GB |
++--------------------+---------------+-----------------+-----+-----------------+
+|                                                      | 16  | 60 GB  | 160 GB |
++------------------------------------------------------+-----+-----------------+
 
 ===================
 Target Technologies
@@ -100,4 +120,9 @@ Target Technologies
 
 1. CentOS boot ISO
 2. HAProxy package
+
+
+References:
+
+* `How to make Kubernetes production grade anywhere <https://kubernetes.io/blog/2018/08/03/out-of-the-clouds-onto-the-ground-how-to-make-kubernetes-production-grade-anywhere/>`_
 
