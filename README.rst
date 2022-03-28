@@ -12,13 +12,15 @@ Objective
 Build a K8s cluster using technologies available at work as a proof of concept
 and reusable template to build from.
 
-The idea is to ***keep the cluster as simple as possible while meeting production
-grade requirements*** and scale to run sizable, but not extreme, machine learning
-and big data compute applications.
+.. important::
+
+   The idea is to **keep the cluster as simple as possible while meeting
+   production-grade requirements** and scale to run sizable, but not extreme,
+   machine learning and big data compute applications.
 
 Production means:
 
-* Tne installation is secure
+* The installation is secure
 * The deployment is managed with a repeatable and recorded process
 * Performance is predictable and consistent
 * Updates and configuration changes can be safely applied
@@ -29,7 +31,7 @@ Production means:
 * A recovery process is available, documented, and tested for use in the event
   of failures
 
-What do these considerations mean then for Kubernetes components.
+*What do these considerations mean then for Kubernetes components?*
 
 **Kubernetes components from a high availability perspective**
 
@@ -74,41 +76,46 @@ Considerations
 
 * **etcd** - 3 or 5 nodes 8GB RAM and a 20GB. A five-node etcd cluster is a
   best practice if you can afford it. Why? Because you could engage in
-  maintenance on one and still tolerate a failure
+  maintenance on one and still tolerate a failure.
 * **3+ hosts** - Run etcd, API server, scheduler, controller manager in a VM on
-  three hosts. Application workload runs in a VM on each host. 
+  three hosts. Application workload runs in a VM on each host.
 
-**Node Layout and Resources**
+**Host Nodes Layout and Resources**
 
-+--------------------+---------------+-----------------+-----+--------+--------+
-| VM Name            | Role          | IP Address      | CPU | RAM    | DISK   |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-haproxy-01 | Load Balancer | 192.168.100.150 | 2   | 4 GB   | 20 GB  |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-m-01       | Master        | 192.168.100.151 | 2   | 8 GB   | 20  GB |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-m-02       | Master        | 192.168.100.152 | 2   | 8 GB   | 20  GB |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-m-03       | Master        | 192.168.100.153 | 2   | 8 GB   | 20  GB |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-01       | Worker        | 192.168.100.154 | 2   | 16 GB  | 20  GB |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-02       | Worker        | 192.168.100.155 | 2   | 16 GB  | 20  GB |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-03       | Worker        | 192.168.100.156 | 2   | 16 GB  | 20  GB |
-+--------------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-04       | Worker        | 192.168.100.157 | 2   | 16 GB  | 20  GB |
-+--------------------+---------------+-----------------+-----+--------+--------+
-|                                                      | 16  | 92 GB  | 160 GB |
-+------------------------------------------------------+-----+--------+--------+
++---------------+---------------+-----------------+-----+--------+--------+
+| VM Name       | Role          | IP Address      | CPU | RAM    | DISK   |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-ha-01 | Load Balancer | 192.168.100.150 | 2   | 4 GB   | 20 GB  |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-m-01  | Master        | 192.168.100.151 | 2   | 8 GB   | 20  GB |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-m-02  | Master        | 192.168.100.152 | 2   | 8 GB   | 20  GB |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-m-03  | Master        | 192.168.100.153 | 2   | 8 GB   | 20  GB |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-w-01  | Worker        | 192.168.100.154 | 2   | 16 GB  | 20  GB |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-w-02  | Worker        | 192.168.100.155 | 2   | 16 GB  | 20  GB |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-w-03  | Worker        | 192.168.100.156 | 2   | 16 GB  | 20  GB |
++---------------+---------------+-----------------+-----+--------+--------+
+| saw-k8s-w-04  | Worker        | 192.168.100.157 | 2   | 16 GB  | 20  GB |
++---------------+---------------+-----------------+-----+--------+--------+
+|                                                 | 16  | 92 GB  | 160 GB |
++-------------------------------------------------+-----+--------+--------+
+
+This node layout should allow for a good simulation of what would be done using
+hardware/VMs available in an on premise data center. In practice, The number of
+masters would optimally be 5, and the size and number of workers would
+hopefully be higher, but this is good size for testing purposes.
 
 ===================
 Target Technologies
 ===================
 
-* **VM hypervisor** - `Proxmox VE`_ for VM hosting this doesn't matter much
-* **Configuration management** - Salt_ for IaaC to setup and maintain Kubernetes nodes programattically
-* **VM OS** - CentOS_ for node operating systems to replicate using RHEL 8
+* **VM hypervisor** - `Proxmox VE`_ for VM management
+* **Configuration management** - Salt_ for IaaC to setup and maintain Kubernetes nodes programmatically
+* **VM OS** - CentOS_ for node operating systems to simulate using RHEL 8
 * **K8s ingress controller** - HAProxy_ for high availability load balancing
 * **K8s cluster creation**- kubeadm_ for bootstrapping K8s nodes 
 
@@ -116,6 +123,7 @@ Target Technologies
 .. _Salt: https://saltproject.io
 .. _CentOS: https://www.centos.org/download/
 .. _HAProxy: http://www.haproxy.org
+.. _kubeadm: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
 
 **Assets list**
 
