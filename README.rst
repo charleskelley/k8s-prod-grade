@@ -5,6 +5,9 @@ K8s Production-Grade
 Creating a Kubernetes cluster to test building clusters and hosting cloud
 native applications in on prem environments using mostly open source.
 
+**Contents**
+
+
 =========
 Objective
 =========
@@ -12,7 +15,7 @@ Objective
 Build a K8s cluster using technologies available at work as a proof of concept
 and reusable template to build from.
 
-.. important::
+.. note::
 
    The idea is to **keep the cluster as simple as possible while meeting
    production-grade requirements** and scale to run sizable, but not extreme,
@@ -129,6 +132,49 @@ Target Technologies
 
 1. CentOS ISO: CentOS-Stream-8-x86_64-latest-boot.iso
 2. HAProxy package: 
+
+
+==========
+Salt Setup
+==========
+
+To setup Salt in the Proxmox host take the following steps logged in as root or
+using sudo.
+
+1. Install Salt using `Debian install instructions`_ in documentation--should
+   install salt-master and salt-minion
+2. ``apt install python-pip3`` using apt because ``ipy`` needs to be added to
+   Proxmox Debian Python 3
+3. ``pip3 install ipy`` to install IPy into the Debian host Python 3 environment
+   used by Salt
+4. Install ``salt-cloud`` using Debian apt package manager 
+5. Setup a Proxmox cloud provider config in ``/etc/salt/cloud.providers.d/proxmox.conf``
+   similar to the following
+
+.. _`Debian install instructions`: https://docs.saltproject.io/salt/user-guide/en/latest/topics/installation.html
+
+.. code:: yaml
+
+   my-proxmox-config:
+     # Proxmox account information
+     user: myuser@pam or myuser@pve
+     password: mypassword
+     url: hypervisor.domain.tld/IP
+     port: 8006
+     driver: proxmox
+     verify_ssl: True
+
+Test that the config is correctly setup by running following as a test.
+
+.. code:: bash
+
+   salt-cloud --list-locations <provider_name>  # my-proxmox-config in the previous example
+   salt-cloud --list-images <provider_name>
+   salt-cloud --list-sizes <provider_name>
+
+Output should look something like this.
+
+.. image:: images/salt-cloud-list-output.png
 
 
 References:
