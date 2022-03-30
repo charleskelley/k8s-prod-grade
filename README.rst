@@ -85,27 +85,27 @@ Considerations
 
 **Host Nodes Layout and Resources**
 
-+---------------+---------------+-----------------+-----+--------+--------+
-| VM Name       | Role          | IP Address      | CPU | RAM    | DISK   |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-ha-01 | Load Balancer | 192.168.100.150 | 2   | 4 GB   | 20 GB  |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-m-01  | Master        | 192.168.100.151 | 2   | 8 GB   | 20  GB |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-m-02  | Master        | 192.168.100.152 | 2   | 8 GB   | 20  GB |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-m-03  | Master        | 192.168.100.153 | 2   | 8 GB   | 20  GB |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-01  | Worker        | 192.168.100.154 | 2   | 16 GB  | 20  GB |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-02  | Worker        | 192.168.100.155 | 2   | 16 GB  | 20  GB |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-03  | Worker        | 192.168.100.156 | 2   | 16 GB  | 20  GB |
-+---------------+---------------+-----------------+-----+--------+--------+
-| saw-k8s-w-04  | Worker        | 192.168.100.157 | 2   | 16 GB  | 20  GB |
-+---------------+---------------+-----------------+-----+--------+--------+
-|                                                 | 16  | 92 GB  | 160 GB |
-+-------------------------------------------------+-----+--------+--------+
++-----------+---------------+-----------------+-----+--------+--------+
+| VM Name   | Role          | IP Address      | CPU | RAM    | DISK   |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-ha-01 | Load Balancer | 192.168.100.150 | 2   | 4 GB   | 20 GB  |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-m-01  | Master        | 192.168.100.151 | 2   | 8 GB   | 20  GB |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-m-02  | Master        | 192.168.100.152 | 2   | 8 GB   | 20  GB |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-m-03  | Master        | 192.168.100.153 | 2   | 8 GB   | 20  GB |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-w-01  | Worker        | 192.168.100.154 | 2   | 16 GB  | 20  GB |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-w-02  | Worker        | 192.168.100.155 | 2   | 16 GB  | 20  GB |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-w-03  | Worker        | 192.168.100.156 | 2   | 16 GB  | 20  GB |
++-----------+---------------+-----------------+-----+--------+--------+
+| k8s-w-04  | Worker        | 192.168.100.157 | 2   | 16 GB  | 20  GB |
++-----------+---------------+-----------------+-----+--------+--------+
+|                                             | 16  | 92 GB  | 160 GB |
++---------------------------------------------+-----+--------+--------+
 
 This node layout should allow for a good simulation of what would be done using
 hardware/VMs available in an on premise data center. In practice, The number of
@@ -141,6 +141,12 @@ Salt Setup
 To setup Salt in the Proxmox host take the following steps logged in as root or
 using sudo.
 
+----------
+Salt Cloud
+----------
+
+**Master Installation**
+
 1. Install Salt using `Debian install instructions`_ in documentation--should
    install salt-master and salt-minion
 2. ``apt install python-pip3`` using apt because ``ipy`` needs to be added to
@@ -148,10 +154,13 @@ using sudo.
 3. ``pip3 install ipy`` to install IPy into the Debian host Python 3 environment
    used by Salt
 4. Install ``salt-cloud`` using Debian apt package manager 
-5. Setup a Proxmox cloud provider config in ``/etc/salt/cloud.providers.d/proxmox.conf``
-   similar to the following
 
 .. _`Debian install instructions`: https://docs.saltproject.io/salt/user-guide/en/latest/topics/installation.html
+
+**Cloud Provider Definition**
+
+ With Salt Cloud intalled, setup a Proxmox cloud provider config in
+ ``/etc/salt/cloud.providers.d/proxmox.conf`` similar to the following
 
 .. code:: yaml
 
@@ -159,10 +168,10 @@ using sudo.
      # Proxmox account information
      user: myuser@pam or myuser@pve
      password: mypassword
-     url: hypervisor.domain.tld/IP
-     port: 8006
+     url: hypervisor.domain.tld or IP
+     port: 8006                       # Optional - default is 8006
      driver: proxmox
-     verify_ssl: True
+     verify_ssl: True                 # Can set to False if its a secure homelab
 
 Test that the config is correctly setup by running following as a test.
 
@@ -175,6 +184,58 @@ Test that the config is correctly setup by running following as a test.
 Output should look something like this.
 
 .. image:: images/salt-cloud-list-output.png
+
+**VM Profiles**
+
+Create profiles in ``/etc/salt/cloud.profiles.d/`` named like
+``<profile>.conf``. For this exercise ``k8s-prod-grade.conf`` was used. The VM profile
+configurations should look something like this.
+
+.. code:: yaml
+
+   proxmox-ubuntu:
+    provider: my-proxmox-config
+    image: local:vztmpl/ubuntu-12.04-standard_12.04-1_amd64.tar.gz
+    technology: lxc
+
+    # host needs to be set to the configured name of the proxmox host
+    # and not the ip address or FQDN of the server
+    host: myvmhost
+    ip_address: 192.168.100.155
+    password: topsecret
+
+    k8s-ha-01:
+     provider: cks-proxmox
+     host: myvmhost
+     image: local:iso/CentOS-Stream-8-x86_64-latest-boot.iso
+     ip_address: 192.168.100.150
+     password: opensesame
+     cpus: 2
+     memory: 4096
+     swap: 1024
+     disk: 20
+
+   k8s-m-01:
+     provider: cks-proxmox
+     host: myvmhost
+     image: local:iso/CentOS-Stream-8-x86_64-latest-boot.iso
+     ip_address: 192.168.100.150
+     password: opensesame
+     cpus: 2
+     memory: 8192
+     swap: 1024
+     disk: 20
+
+   k8s-w-01:
+     provider: cks-proxmox
+     host: myvmhost
+     image: local:iso/CentOS-Stream-8-x86_64-latest-boot.iso
+     ip_address: 192.168.100.150
+     password: opensesame
+     cpus: 2
+     memory: 16384
+     swap: 1024
+     disk: 20
 
 
 References:
